@@ -1,7 +1,7 @@
-import {API} from '@app/utils/constants';
-import {instance} from '@app/utils/server/instance';
-import {AxiosResponse} from 'axios';
-import {call, put, takeLatest} from 'redux-saga/effects';
+import { API } from '@app/utils/constants';
+import { instance } from '@app/utils/server/instance';
+import { AxiosResponse } from 'axios';
+import { call, put, takeLatest } from 'redux-saga/effects';
 import {
   // logout
   logoutFailure,
@@ -14,10 +14,10 @@ import {
   signUpSuccess,
 } from '../slice/auth.slice';
 import Storage from '@app/utils/storage';
-import {persistor} from '..';
-import {showMessage} from '@app/utils/helpers/Toast';
+import { persistor } from '..';
+import { showMessage } from '@app/utils/helpers/Toast';
 
-const {auth} = API;
+const { auth } = API;
 
 const _header = {
   headers: {
@@ -34,21 +34,24 @@ function* handleSignIn(action: any) {
       action.payload,
     );
 
-    console.log("result:::",result);
-    const {status, data} = result;
-    console.log("data:::",data?.data.token);
+    console.log('result:::', result);
+    const { status, data } = result;
+    console.log('data:::', data);
 
     if (status === 200) {
       yield put(
         signInSuccess({
-          token: data?.data?.token,
-          refreshToken: data?.data?.token,
+          token: data?.data?.token?.sds,
+          refreshToken: data?.data?.token?.refresh,
         }),
       );
-      showMessage('Login Successful, You have been logged in successfully!');
+      showMessage(data?.meta?.message);
+    } else {
+      yield put(signInFailure(data?.data));
+      showMessage(data?.meta?.message);
     }
   } catch (error: any) {
-    showMessage(error?.response?.data?.message || error.message);
+    console.log('>>>>>>>>>>>', error);
     yield put(signInFailure(error?.response?.data?.message || error.message));
   }
 }
@@ -62,7 +65,7 @@ function* handleSignUp(action: any) {
       action.payload,
     );
 
-    const {status, data} = result;
+    const { status, data } = result;
 
     if (status === 200) {
       yield put(signUpSuccess());
